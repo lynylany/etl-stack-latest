@@ -1,0 +1,179 @@
+version: "3.8"
+
+# =====================================================================
+# ETL Teaching Stack (Latest — Aug 2026)
+#   PostgreSQL 18.6 + Apache Airflow 3.3.1 + Grafana 13.2 + pgAdmin 9.17
+# ---------------------------------------------------------------------
+# หมายเหตุสำคัญ: Airflow 3.x เปลี่ยนสถาปัตยกรรมจาก 2.x
+#   - "webserver" ถูกแทนด้วย "api-server" (UI ยังอยู่ที่ port 8080)
+#   - "dag-processor" แยกออกมาเป็น service บังคับ (scheduler ไม่ parse DAG แล้ว)
+#   - task คุยกับระบบผ่าน Execution API + JWT
+# ทุก service อยู่บน network เดียวกัน (etl_network)
+#   - ใน container อ้างถึงกันด้วยชื่อ service เช่น host = "postgres"
+#   - จากเครื่อง host (เขียน python) ใช้ localhost + port ที่ map ไว้
+# =====================================================================
+
+x-airflow-common: &airflow-common
+  image: apache/airflow:3.3.1-python3.12
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://airflow-apiserver:8080/execution/"
+    AIRFLOW__API_AUTH__JWT_SECRET: "classroom-jwt-secret-change-me"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DEFAULT_TIMEZONE: "Asia/Bangkok"
+    # connection สำหรับ DAG ใช้ต่อ etl_db ได้ทันที
+    AIRFLOW_CONN_ETL_POSTGRES: postgresql://etl_user:etl_pass@postgres:5432/etl_db
+    # ติดตั้ง library เพิ่มตอน start (สะดวกสำหรับ class; production ควร build image เอง)
+    _PIP_ADDITIONAL_REQUIREMENTS: "pandas psycopg2-binary requests"
+  volumes:
+    - ./dags:/opt/airflow/dags          # เขียน DAG จากเครื่อง host ได้เลย
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ./data:/opt/airflow/data          # แชร์ไฟล์ข้อมูล (csv ฯลฯ) กับ host
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    postgres:
+      condition: service_healthy
+  networks:
+    - etl_network
+
+services:
+  # -------------------------------------------------------------------
+  # PostgreSQL 18 — ตัวเดียว แยก 2 database
+  #   1) airflow  : metadata ของ Airflow
+  #   2) etl_db   : ปลายทางของงาน ETL (Grafana อ่านจากตัวนี้)
+  # หมายเหตุ: image postgres:18 เปลี่ยน layout ข้อมูล
+  #   ให้ mount volume ที่ /var/lib/postgresql (ไม่ใช่ .../data แบบเดิม)
+  # -------------------------------------------------------------------
+  postgres:
+    image: postgres:18.6
+    container_name: etl_postgres
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5432:5432"        # python บนเครื่อง host ต่อผ่าน localhost:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./init-db:/docker-entrypoint-initdb.d   # สคริปต์สร้าง etl_db + user
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - etl_network
+
+  # -------------------------------------------------------------------
+  # Airflow 3.3
+  # -------------------------------------------------------------------
+  airflow-init:
+    <<: *airflow-common
+    container_name: etl_airflow_init
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin
+    restart: "no"
+
+  airflow-apiserver:
+    <<: *airflow-common
+    container_name: etl_airflow_apiserver
+    command: api-server
+    ports:
+      - "8080:8080"        # UI: http://localhost:8080  (admin / admin)
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: etl_airflow_scheduler
+    command: scheduler
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # Airflow 3 บังคับต้องมี dag-processor แยก (ทำหน้าที่ parse ไฟล์ DAG)
+  airflow-dag-processor:
+    <<: *airflow-common
+    container_name: etl_airflow_dag_processor
+    command: dag-processor
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # สำหรับ deferrable operators / sensors (มีไว้ให้สอนครบ)
+  airflow-triggerer:
+    <<: *airflow-common
+    container_name: etl_airflow_triggerer
+    command: triggerer
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # -------------------------------------------------------------------
+  # Grafana 13 — ทำ dashboard จากข้อมูลใน etl_db
+  # -------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:13.2.0
+    container_name: etl_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"        # UI: http://localhost:3000  (admin / admin)
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning  # auto-add datasource
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - etl_network
+    restart: unless-stopped
+
+  # -------------------------------------------------------------------
+  # pgAdmin 4 v9.17 — GUI จัดการ PostgreSQL
+  # -------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:9.17
+    container_name: etl_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"          # UI: http://localhost:5050
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - etl_network
+    restart: unless-stopped
+
+networks:
+  etl_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  grafana_data:
+  pgadmin_data:

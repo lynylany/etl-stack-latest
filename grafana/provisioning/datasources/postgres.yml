@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: ETL PostgreSQL
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: postgres:5432          # ชื่อ service ใน docker network
+    database: etl_db
+    user: etl_user
+    secureJsonData:
+      password: etl_pass
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1800
+    isDefault: true
