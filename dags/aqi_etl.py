@@ -1,7 +1,7 @@
 import requests,numpy as np,pandas as pd
 from sqlalchemy import create_engine,text
 
-dw=create_engine("postgresql+psycopg2://airflow:airflow@localhost:5432/dw_db")
+dw=create_engine("postgresql+psycopg2://airflow:airflow@postgres:5432/dw_db")
 
 url="https://air4thai.pcd.go.th/services/getNewAQI_JSON.php"
 data=requests.get(url,verify=False,timeout=30).json()

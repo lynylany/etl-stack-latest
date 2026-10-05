@@ -1,8 +1,8 @@
 import pandas as pd
 from sqlalchemy import create_engine,text
 
-src=create_engine("postgresql+psycopg2://airflow:airflow@localhost:5432/etl_db")
-dw=create_engine("postgresql+psycopg2://airflow:airflow@localhost:5432/dw_db")
+src=create_engine("postgresql+psycopg2://airflow:airflow@postgres:5432/etl_db")
+dw=create_engine("postgresql+psycopg2://airflow:airflow@postgres:5432/dw_db")
 
 df=pd.read_sql("SELECT * FROM raw_area",src)
 

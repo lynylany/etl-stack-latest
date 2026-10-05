@@ -3,7 +3,7 @@ from sqlalchemy import create_engine,text
 from datetime import date
 from pathlib import Path
 
-dw=create_engine("postgresql+psycopg2://airflow:airflow@localhost:5432/dw_db")
+dw=create_engine("postgresql+psycopg2://airflow:airflow@postgres:5432/dw_db")
 API_KEY="bd4e93003fa947c6bdcbd19f4df4682d"
 BASE_DIR = Path(__file__).resolve().parent.parent
 

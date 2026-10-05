@@ -1,7 +1,7 @@
 import requests,pandas as pd
 from sqlalchemy import create_engine,text
 
-dw=create_engine("postgresql+psycopg2://airflow:airflow@localhost:5432/dw_db")
+dw=create_engine("postgresql+psycopg2://airflow:airflow@postgres:5432/dw_db")
 
 df=pd.read_sql("""
     SELECT DISTINCT ON (area_key)

@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from pathlib import Path
 
-dw = create_engine("postgresql+psycopg2://airflow:airflow@localhost:5432/dw_db")
+dw = create_engine("postgresql+psycopg2://airflow:airflow@postgres:5432/dw_db")
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CSV_PATH = BASE_DIR / "data" / "Sample - Superstore.csv"
 
