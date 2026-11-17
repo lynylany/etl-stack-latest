@@ -1,7 +1,15 @@
 apiVersion: 1
 
+# ลบตัวเก่าก่อน provision ใหม่ — จำเป็นเวลาเปลี่ยน uid ของ datasource ที่สร้างไปแล้ว
+deleteDatasources:
+  - name: ETL PostgreSQL
+    orgId: 1
+  - name: DW PostgreSQL
+    orgId: 1
+
 datasources:
   - name: ETL PostgreSQL
+    uid: etl_postgres
     type: grafana-postgresql-datasource
     access: proxy
     url: postgres:5432          # ชื่อ service ใน docker network
@@ -13,3 +21,17 @@ datasources:
       sslmode: disable
       postgresVersion: 1800
     isDefault: true
+
+  # Data Warehouse (star schema ของ ecommerce_etl)
+  - name: DW PostgreSQL
+    uid: dw_postgres
+    type: grafana-postgresql-datasource
+    access: proxy
+    url: postgres:5432
+    database: dw_db
+    user: etl_user
+    secureJsonData:
+      password: etl_pass
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1800

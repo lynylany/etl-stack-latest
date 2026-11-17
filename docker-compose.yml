@@ -142,6 +142,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning  # auto-add datasource
+      - ./grafana/dashboards:/var/lib/grafana/dashboards  # dashboard JSON (provisioned)
     depends_on:
       postgres:
         condition: service_healthy

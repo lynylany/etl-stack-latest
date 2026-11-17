@@ -1,0 +1,1225 @@
+{
+  "uid": "ecommerce-sales",
+  "title": "E-Commerce Sales Overview",
+  "tags": [
+    "ecommerce",
+    "dw"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "editable": true,
+  "time": {
+    "from": "2014-01-01T00:00:00.000Z",
+    "to": "2018-01-01T00:00:00.000Z"
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Overview (KPI)",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total Sales",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(sales) FROM ecommerce.fact_sales;"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Total Profit",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(profit) FROM ecommerce.fact_sales;"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Total Orders",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT order_id) FROM ecommerce.fact_sales;"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Avg Order Value (AOV)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(sales) / COUNT(DISTINCT order_id) FROM ecommerce.fact_sales;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q1 - Which customer group has the highest lifetime spend?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": []
+    },
+    {
+      "id": 10,
+      "type": "barchart",
+      "title": "Q1a - Lifetime Spend by Customer Segment",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT c.segment AS \"Segment\", SUM(f.sales) AS \"Total Spend\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_customer c ON c.customer_key = f.customer_key GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "barchart",
+      "title": "Q1b - Lifetime Spend by Region",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT g.region AS \"Region\", SUM(f.sales) AS \"Total Spend\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_geography g ON g.geo_key = f.geo_key GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q2 - Which category earns the most revenue, and at what margin?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "panels": []
+    },
+    {
+      "id": 20,
+      "type": "table",
+      "title": "Q2a - Revenue / Profit / Margin % by Category",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Revenue"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Profit"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Margin %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT p.category AS \"Category\", SUM(f.sales) AS \"Revenue\", SUM(f.profit) AS \"Profit\", ROUND((SUM(f.profit) / NULLIF(SUM(f.sales),0) * 100)::numeric, 2) AS \"Margin %\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_product p ON p.product_key = f.product_key GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "type": "barchart",
+      "title": "Q2b - Revenue by Sub-Category",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT p.category || ' / ' || p.sub_category AS \"Sub-Category\", SUM(f.sales) AS \"Revenue\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_product p ON p.product_key = f.product_key GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q3 - Who are the 10 most frequent customers?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "panels": []
+    },
+    {
+      "id": 30,
+      "type": "table",
+      "title": "Q3 - Top 10 Loyal Customers (by order count)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Spend"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AOV"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT c.customer_name AS \"Customer\", c.segment AS \"Segment\", COUNT(DISTINCT f.order_id) AS \"Orders\", SUM(f.sales) AS \"Total Spend\", SUM(f.sales) / COUNT(DISTINCT f.order_id) AS \"AOV\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_customer c ON c.customer_key = f.customer_key GROUP BY 1, 2 ORDER BY 3 DESC, 4 DESC LIMIT 10;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q4 - How does average order value differ by category?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 34
+      },
+      "panels": []
+    },
+    {
+      "id": 40,
+      "type": "barchart",
+      "title": "Q4a - Average Order Value by Category",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 2,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT p.category AS \"Category\", SUM(f.sales) / COUNT(DISTINCT f.order_id) AS \"AOV\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_product p ON p.product_key = f.product_key GROUP BY 1 ORDER BY 2 DESC;"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "type": "table",
+      "title": "Q4b - AOV Detail by Category",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Revenue"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "AOV"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT p.category AS \"Category\", COUNT(DISTINCT f.order_id) AS \"Orders\", SUM(f.sales) AS \"Revenue\", SUM(f.sales) / COUNT(DISTINCT f.order_id) AS \"AOV\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_product p ON p.product_key = f.product_key GROUP BY 1 ORDER BY 4 DESC;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q5 - Do heavily discounted products actually sell better?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
+      "panels": []
+    },
+    {
+      "id": 50,
+      "type": "table",
+      "title": "Q5a - Sales / Quantity / Profit by Discount Band",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 14,
+        "x": 0,
+        "y": 45
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Revenue"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Profit"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Avg Line Sales"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Margin %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE WHEN f.discount = 0 THEN 'No Discount (0%)' WHEN f.discount <= 0.2 THEN 'Low (1-20%)' WHEN f.discount <= 0.4 THEN 'Medium (21-40%)' ELSE 'High (>40%)' END AS \"Discount Band\", SUM(f.quantity) AS \"Qty Sold\", SUM(f.sales) AS \"Revenue\", AVG(f.sales) AS \"Avg Line Sales\", SUM(f.profit) AS \"Profit\", ROUND((SUM(f.profit) / NULLIF(SUM(f.sales),0) * 100)::numeric, 2) AS \"Margin %\" FROM ecommerce.fact_sales f GROUP BY 1 ORDER BY MIN(f.discount);"
+        }
+      ]
+    },
+    {
+      "id": 51,
+      "type": "barchart",
+      "title": "Q5b - Profit by Discount Band (negative = loss)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 10,
+        "x": 14,
+        "y": 45
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE WHEN f.discount = 0 THEN 'No Discount (0%)' WHEN f.discount <= 0.2 THEN 'Low (1-20%)' WHEN f.discount <= 0.4 THEN 'Medium (21-40%)' ELSE 'High (>40%)' END AS \"Discount Band\", SUM(f.profit) AS \"Profit\" FROM ecommerce.fact_sales f GROUP BY 1 ORDER BY MIN(f.discount);"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q6 - Which region and state deliver the best profit margin?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "panels": []
+    },
+    {
+      "id": 60,
+      "type": "table",
+      "title": "Q6a - Revenue / Profit / Margin % by Region",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 55
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Revenue"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Profit"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Margin %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT g.region AS \"Region\", SUM(f.sales) AS \"Revenue\", SUM(f.profit) AS \"Profit\", ROUND((SUM(f.profit) / NULLIF(SUM(f.sales),0) * 100)::numeric, 2) AS \"Margin %\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_geography g ON g.geo_key = f.geo_key GROUP BY 1 ORDER BY 4 DESC;"
+        }
+      ]
+    },
+    {
+      "id": 61,
+      "type": "barchart",
+      "title": "Q6b - Top 10 States by Profit",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 55
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT g.state AS \"State\", SUM(f.profit) AS \"Profit\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_geography g ON g.geo_key = f.geo_key GROUP BY 1 ORDER BY 2 DESC LIMIT 10;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q7 - How do sales trend over time?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 64
+      },
+      "panels": []
+    },
+    {
+      "id": 70,
+      "type": "timeseries",
+      "title": "Q7a - Monthly Sales & Profit",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 14,
+        "x": 0,
+        "y": 65
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10,
+            "showPoints": "never"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT date_trunc('month', d.full_date) AS time, SUM(f.sales) AS \"Sales\", SUM(f.profit) AS \"Profit\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_date d ON d.date_key = f.order_date_key GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    },
+    {
+      "id": 71,
+      "type": "barchart",
+      "title": "Q7b - Revenue by Year",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 10,
+        "x": 14,
+        "y": 65
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Year"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "legend": {
+          "showLegend": false
+        },
+        "xField": "Year"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT d.year::text AS \"Year\", SUM(f.sales) AS \"Revenue\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_date d ON d.date_key = f.order_date_key GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q8 - Which sub-categories lose money?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 74
+      },
+      "panels": []
+    },
+    {
+      "id": 80,
+      "type": "barchart",
+      "title": "Q8 - Profit by Sub-Category (worst first)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 0,
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 80
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "legend": {
+          "showLegend": false
+        }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT p.category || ' / ' || p.sub_category AS \"Sub-Category\", SUM(f.profit) AS \"Profit\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_product p ON p.product_key = f.product_key GROUP BY 1 ORDER BY 2 ASC;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q9 - Does delivery time differ by ship mode?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 85
+      },
+      "panels": []
+    },
+    {
+      "id": 90,
+      "type": "table",
+      "title": "Q9 - Average Days to Ship by Ship Mode (dim_date joined twice)",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 86
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Revenue"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "currencyUSD"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT f.ship_mode AS \"Ship Mode\", ROUND(AVG(sd.full_date - od.full_date)::numeric, 2) AS \"Avg Days to Ship\", COUNT(*) AS \"Order Lines\", SUM(f.sales) AS \"Revenue\" FROM ecommerce.fact_sales f JOIN ecommerce.dim_date od ON od.date_key = f.order_date_key JOIN ecommerce.dim_date sd ON sd.date_key = f.ship_date_key GROUP BY 1 ORDER BY 2;"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Q10 - Has any customer changed segment over time?",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 94
+      },
+      "panels": []
+    },
+    {
+      "id": 100,
+      "type": "table",
+      "title": "Q10 - Customer Versions Held by SCD Type 2",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "dw_postgres"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 95
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "editorMode": "code",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE WHEN is_current THEN 'Current version' ELSE 'Historical version' END AS \"Record State\", COUNT(*) AS \"Customer Rows\", MIN(effective_from) AS \"Earliest effective_from\", MAX(COALESCE(effective_to, CURRENT_DATE)) AS \"Latest effective_to\" FROM ecommerce.dim_customer GROUP BY 1 ORDER BY 1;"
+        }
+      ]
+    }
+  ]
+}
