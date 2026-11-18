@@ -1,0 +1,5 @@
+# Airflow writes a new log file for every task of every run.
+# They are runtime output, not source code, so they stay out of the repo.
+# logs/.gitkeep is kept so the folder still exists in a fresh clone.
+logs/*
+!logs/.gitkeep
