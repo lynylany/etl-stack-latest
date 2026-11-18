@@ -940,7 +940,7 @@
     },
     {
       "type": "row",
-      "title": "Q7 - How do sales trend over time?",
+      "title": "Q7 - How do sales and profit trend over time?",
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -1058,7 +1058,7 @@
     },
     {
       "type": "row",
-      "title": "Q8 - Which sub-categories lose money?",
+      "title": "Q8 - Which sub-categories actually lose money?",
       "collapsed": false,
       "gridPos": {
         "h": 1,
